@@ -1,0 +1,138 @@
+:root {
+    --grid-spacing-horizontal: 20px;
+    --grid-spacing-vertical: 20px;
+}
+
+:root:not([data-theme="dark"]), [data-theme="light"] {
+    --grid-spacing-horizontal: 1rem;
+    --grid-spacing-vertical: 1rem;
+    --card-sectionning-background-color: #ebebeb;
+
+    --flag-red: #d33;
+    --flag-white: #333;
+    --flag-blue: #33d;
+}
+
+:root:not([data-theme="light"]), [data-theme="dark"] {
+    --background-color: #1a1d20;
+    --card-sectionning-background-color: #1c252d;
+
+    --flag-red: #d33;
+    --flag-white: #ddd;
+    --flag-blue: #33d;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    text-align: center;
+}
+
+header a, header b, header i, footer a, footer b, footer i {
+    display: block;
+}
+
+section.hero {
+    text-align: center;
+    margin-top: var(--block-spacing-vertical);
+    margin-bottom: var(--block-spacing-vertical);
+}
+
+section.hero > hgroup {
+    display: inline-block;
+    width: 100%;
+    max-width: 28rem;
+}
+
+html[data-theme="light"] section.hero > hgroup h1 {
+    background: -webkit-gradient(linear, left top, right top, from(var(--flag-red)), color-stop(var(--flag-white)), to(var(--flag-blue)));
+    background: -o-linear-gradient(left, var(--flag-red), var(--flag-white), var(--flag-blue));
+    background: linear-gradient(to right, var(--flag-red), var(--flag-white), var(--flag-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+section.hero > hgroup h1 {
+    background: -webkit-gradient(linear, left top, right top, from(var(--flag-red)), color-stop(var(--flag-white)), to(var(--flag-blue)));
+    background: -o-linear-gradient(left, var(--flag-red), var(--flag-white), var(--flag-blue));
+    background: linear-gradient(to right, var(--flag-red), var(--flag-white), var(--flag-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid > article {
+    margin: 0;
+    grid-column: span 2 / span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.grid > article:last-child:nth-child(odd) {
+    /* centre the article, if there are an odd number. */
+    grid-column-start: 2;
+}
+
+.theme-switcher {
+    position: fixed;
+    right: var(--spacing);
+    bottom: var(--spacing);
+    width: auto;
+    margin-bottom: 0;
+    padding: .75rem;
+    border-radius: 100%;
+    box-shadow: var(--card-box-shadow);
+    line-height: 1;
+    text-align: right;
+}
+
+.theme-switcher::after {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    content: "";
+    vertical-align: bottom;
+    transition: transform var(--transition);
+}
+
+html[data-theme="light"] .theme-switcher {
+    background-color: #333;
+}
+html[data-theme="light"] .theme-switcher::after {
+    content: url("../img/moon.svg");
+    /* https: //codepen.io/sosuke/pen/Pjoqqp */
+    /* https: //stackoverflow.com/a/53336754/3578036 */
+    filter: invert(99%) sepia(65%) saturate(471%) hue-rotate(210deg) brightness(117%) contrast(73%);
+}
+
+html[data-theme="dark"] .theme-switcher {
+    background-color: #ddd;
+}
+html[data-theme="dark"] .theme-switcher::after {
+    content: url("../img/sun.svg");
+}
+
+.theme-switcher i {
+    display: inline-block;
+    max-width: 0;
+    padding: 0;
+    overflow: hidden;
+    font-style: normal;
+    font-size: .875rem;
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .grid > article {
+        grid-column: span 1 / span 1;
+    }
+}

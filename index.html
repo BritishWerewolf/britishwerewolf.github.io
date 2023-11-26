@@ -1,9 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
-	<title>BritishWerewolf</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BritishWerewolf</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link rel="stylesheet" href="css/stylesheet.css">
 </head>
 <body>
-	<h1>Hello, world!</h1>
+    <section class="hero">
+        <hgroup>
+            <h1>Hello, world! It's me: the British Werewolf!</h1>
+            <h2>My name is Harry, and this is my portfolio and thought pieces. Enjoy!</h2>
+        </hgroup>
+    </section>
+
+    <h2>My projects</h2>
+    <div class="grid">
+        <article>
+            <header>
+                <b>Rust Yew Counter</b>
+                <i>yew-simple-counter</i>
+            </header>
+            <div>
+                <p>This was the first application I ever wrote in Rust. I opted to use the <a href="https://yew.rs">Yew</a> framework.</p>
+                <p>It's a relatively simple application - okay, it's <i>really</i> simple - but it does demonstrate passing data into props.</p>
+            </div>
+            <footer>
+                <a href="projects/yew-simple-counter/index.html">Interactive demo</a>
+                <a href="https://github.com/BritishWerewolf/yew-simple-counter">GitHub repo</a>
+            </footer>
+        </article>
+
+        <article>
+            <header>
+                <b>Rust Todo Yew App</b>
+                <i>yew-simple-todo</i>
+            </header>
+            <div>
+                <p>My second Rust app was again using the Yew framework, but this time I added a few more dependecies as I was feeling more confident with framework.</p>
+                <p>This now utilised hooks for state, as well as a custom Store. Again, as I was still learning, I chose to implement my own store rather than a premade one.</p>
+                <p>I was quite proud of this project!</p>
+            </div>
+            <footer>
+                <a href="projects/yew-simple-todo/index.html">Interactive demo</a>
+                <a href="https://github.com/BritishWerewolf/yew-simple-todo">GitHub repo</a>
+            </footer>
+        </article>
+
+        <article>
+            <header>
+                <b>Programmatic Bootstrap Alerts</b>
+                <i>BootstrapAlerts</i>
+            </header>
+            <div>
+                <p>The first repo I ever got a star on - this one's special!</p>
+                <p>I wanted to create a fluid way of generating alerts using <a href="https://getbootstrap.com">Bootstrap CSS</a>. By passing in a single object as the argument it's possible to set settings like <code>{ dismissible: true, background: "success" }</code>.</p>
+            </div>
+            <footer>
+                <a href="https://github.com/BritishWerewolf/BootstrapAlerts">GitHub repo</a>
+            </footer>
+        </article>
+    </div>
+
+    <button class="contrast theme-switcher" aria-label="Turn off dark mode"><i>Turn off dark mode</i></button>
+
+    <script>
+    document.getElementsByClassName("theme-switcher")[0].onclick = function (event) {
+        document.documentElement.dataset["theme"] = document.documentElement.dataset["theme"] == "dark"
+        ? "light"
+        : "dark";
+        localStorage.setItem("theme", document.documentElement.dataset["theme"]);
+    };
+
+    if (localStorage.getItem("theme")) {
+        document.documentElement.dataset["theme"] = localStorage.getItem("theme");
+    }
+    </script>
 </body>
 </html>
