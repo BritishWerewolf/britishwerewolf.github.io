@@ -1,6 +1,8 @@
 :root {
     --grid-spacing-horizontal: 20px;
     --grid-spacing-vertical: 20px;
+    --dark-mode-button-height: 2.5rem;
+    --dark-mode-button-width: 2.5rem;
 }
 
 :root:not([data-theme="dark"]), [data-theme="light"] {
@@ -82,19 +84,17 @@ section.hero > hgroup h1 {
     position: fixed;
     right: var(--spacing);
     bottom: var(--spacing);
-    width: auto;
+    width: var(--dark-mode-button-width);
+    height: var(--dark-mode-button-height);
     margin-bottom: 0;
-    padding: .75rem;
+    line-height: 0;
+    padding: 0.5rem;
     border-radius: 100%;
     box-shadow: var(--card-box-shadow);
-    line-height: 1;
-    text-align: right;
 }
 
 .theme-switcher::after {
     display: inline-block;
-    width: 1rem;
-    height: 1rem;
     content: "";
     vertical-align: bottom;
     transition: transform var(--transition);
@@ -128,11 +128,14 @@ html[data-theme="dark"] .theme-switcher::after {
 }
 
 @media screen and (max-width: 768px) {
-    .grid {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
+    body {
+        /* Prevent the dark mode toggle from potentially obscurring content */
+        margin-bottom: calc(var(--dark-mode-button-height) + var(--spacing) + 1rem);
     }
 
-    .grid > article {
-        grid-column: span 1 / span 1;
+    .grid {
+        /* Change to flexbox as it handles columns nicer */
+        display: flex;
+        flex-direction: column;
     }
 }
