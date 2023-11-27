@@ -1,27 +1,36 @@
 :root {
+    --background-color-gradient-step-1: color-mix(in srgb, var(--background-color) 90%, var(--background-color-mix));
+    --background-color-gradient-step-2: color-mix(in srgb, var(--background-color) 85%, var(--background-color-mix));
+    --background-color-gradient-step-3: color-mix(in srgb, var(--background-color) 80%, var(--background-color-mix));
+    --background-color-gradient-step-4: color-mix(in srgb, var(--background-color) 75%, var(--background-color-mix));
+    --background-color-gradient-step-5: color-mix(in srgb, var(--background-color) 70%, var(--background-color-mix));
+
     --grid-spacing-horizontal: 20px;
     --grid-spacing-vertical: 20px;
+
+    --flag-left: #d33;
+    --flag-middle: #ddd;
+    --flag-right: #33d;
+    --hero-spacing: 20vh;
+    --hero-font-size: 4rem;
     --dark-mode-button-height: 2.5rem;
     --dark-mode-button-width: 2.5rem;
 }
 
 :root:not([data-theme="dark"]), [data-theme="light"] {
+    --background-color: #e5e2df;
+    --background-color-mix: #aaa;
     --grid-spacing-horizontal: 1rem;
     --grid-spacing-vertical: 1rem;
     --card-sectionning-background-color: #ebebeb;
 
-    --flag-red: #d33;
-    --flag-white: #333;
-    --flag-blue: #33d;
+    --flag-middle: #333;
 }
 
 :root:not([data-theme="light"]), [data-theme="dark"] {
     --background-color: #1a1d20;
+    --background-color-mix: #000;
     --card-sectionning-background-color: #1c252d;
-
-    --flag-red: #d33;
-    --flag-white: #ddd;
-    --flag-blue: #33d;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -31,36 +40,6 @@ h1, h2, h3, h4, h5, h6 {
 
 header a, header b, header i, footer a, footer b, footer i {
     display: block;
-}
-
-section.hero {
-    text-align: center;
-    margin-top: var(--block-spacing-vertical);
-    margin-bottom: var(--block-spacing-vertical);
-}
-
-section.hero > hgroup {
-    display: inline-block;
-    width: 100%;
-    max-width: 28rem;
-}
-
-html[data-theme="light"] section.hero > hgroup h1 {
-    background: -webkit-gradient(linear, left top, right top, from(var(--flag-red)), color-stop(var(--flag-white)), to(var(--flag-blue)));
-    background: -o-linear-gradient(left, var(--flag-red), var(--flag-white), var(--flag-blue));
-    background: linear-gradient(to right, var(--flag-red), var(--flag-white), var(--flag-blue));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-section.hero > hgroup h1 {
-    background: -webkit-gradient(linear, left top, right top, from(var(--flag-red)), color-stop(var(--flag-white)), to(var(--flag-blue)));
-    background: -o-linear-gradient(left, var(--flag-red), var(--flag-white), var(--flag-blue));
-    background: linear-gradient(to right, var(--flag-red), var(--flag-white), var(--flag-blue));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .grid {
@@ -80,6 +59,51 @@ section.hero > hgroup h1 {
     grid-column-start: 2;
 }
 
+/* Hero section */
+section.hero {
+    background-image: linear-gradient(to right top, var(--background-color-gradient-step-1), var(--background-color-gradient-step-2), var(--background-color-gradient-step-3), var(--background-color-gradient-step-4), var(--background-color-gradient-step-5));
+    text-align: center;
+    padding-top: var(--hero-spacing);
+    padding-bottom: var(--hero-spacing);
+}
+
+section.hero > hgroup {
+    display: inline-block;
+    width: 100%;
+    max-width: 32rem;
+}
+
+section.hero > hgroup h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+}
+
+section.hero > hgroup h1 + h2 {
+    display: inline-block;
+    max-width: 24rem;
+}
+
+html[data-theme="light"] section.hero > hgroup h1 {
+    background: -webkit-gradient(linear, left top, right top, from(var(--flag-left)), color-stop(var(--flag-middle)), to(var(--flag-right)));
+    background: -o-linear-gradient(left, var(--flag-left), var(--flag-middle), var(--flag-right));
+    background: linear-gradient(to right, var(--flag-left), var(--flag-middle), var(--flag-right));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+section.hero > hgroup h1 {
+    background: -webkit-gradient(linear, left top, right top, from(var(--flag-left)), color-stop(var(--flag-middle)), to(var(--flag-right)));
+    background: -o-linear-gradient(left, var(--flag-left), var(--flag-middle), var(--flag-right));
+    background: linear-gradient(to right, var(--flag-left), var(--flag-middle), var(--flag-right));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Dark mode toggle */
 .theme-switcher {
     position: fixed;
     right: var(--spacing);
@@ -126,6 +150,7 @@ html[data-theme="dark"] .theme-switcher::after {
     font-size: .875rem;
     white-space: nowrap;
 }
+
 
 @media screen and (max-width: 768px) {
     body {
