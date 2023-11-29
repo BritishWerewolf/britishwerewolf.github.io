@@ -1,25 +1,21 @@
 :root {
-    --background-color-gradient-step-1: color-mix(in srgb, var(--background-color) 90%, var(--background-color-mix));
-    --background-color-gradient-step-2: color-mix(in srgb, var(--background-color) 85%, var(--background-color-mix));
-    --background-color-gradient-step-3: color-mix(in srgb, var(--background-color) 80%, var(--background-color-mix));
-    --background-color-gradient-step-4: color-mix(in srgb, var(--background-color) 75%, var(--background-color-mix));
-    --background-color-gradient-step-5: color-mix(in srgb, var(--background-color) 70%, var(--background-color-mix));
-
+    --transition: 400ms cubic-bezier(0.4, 0, 0.2, 1);
     --grid-spacing-horizontal: 20px;
     --grid-spacing-vertical: 20px;
+
+    --background-gradient-1: rgba(0, 0, 255, 0.25);
+    --background-gradient-2: rgba(255, 0, 0, 0.25);
 
     --flag-left: #d33;
     --flag-middle: #ddd;
     --flag-right: #33d;
     --hero-spacing: 20vh;
-    --hero-font-size: 4rem;
     --dark-mode-button-height: 2.5rem;
     --dark-mode-button-width: 2.5rem;
 }
 
 :root:not([data-theme="dark"]), [data-theme="light"] {
     --background-color: #e5e2df;
-    --background-color-mix: #aaa;
     --grid-spacing-horizontal: 1rem;
     --grid-spacing-vertical: 1rem;
     --card-sectionning-background-color: #ebebeb;
@@ -31,6 +27,17 @@
     --background-color: #1a1d20;
     --background-color-mix: #000;
     --card-sectionning-background-color: #1c252d;
+}
+
+* {
+    transition: color var(--transition), background-color var(--transition), border-color var(--transition), text-decoration-color var(--transition), fill var(--transition), stroke var(--transition);
+}
+
+html {
+    background-image: radial-gradient(circle 400px at top left, var(--background-gradient-1), transparent),
+                      radial-gradient(circle 200px at 80% 10%, var(--background-gradient-2), transparent),
+                      radial-gradient(circle 150px at 80% 18%, var(--background-gradient-2), transparent),
+                      radial-gradient(circle 200px at 75% 25%, var(--background-gradient-2), transparent);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -55,13 +62,12 @@ header a, header b, header i, footer a, footer b, footer i {
 }
 
 .grid > article:last-child:nth-child(odd) {
-    /* centre the article, if there are an odd number. */
+    /* centre the article if there are an odd number. */
     grid-column-start: 2;
 }
 
 /* Hero section */
 section.hero {
-    background-image: linear-gradient(to right top, var(--background-color-gradient-step-1), var(--background-color-gradient-step-2), var(--background-color-gradient-step-3), var(--background-color-gradient-step-4), var(--background-color-gradient-step-5));
     text-align: center;
     padding-top: var(--hero-spacing);
     padding-bottom: var(--hero-spacing);
