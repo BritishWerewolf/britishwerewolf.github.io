@@ -34,6 +34,7 @@
 }
 
 html {
+    padding: var(--pico-spacing);
     background-image: radial-gradient(circle 400px at top left, var(--background-gradient-1), transparent),
                       radial-gradient(circle 200px at 80% 10%, var(--background-gradient-2), transparent),
                       radial-gradient(circle 150px at 80% 18%, var(--background-gradient-2), transparent),
@@ -112,15 +113,15 @@ section.hero > hgroup h1 {
 /* Dark mode toggle */
 .theme-switcher {
     position: fixed;
-    right: var(--spacing);
-    bottom: var(--spacing);
+    right: var(--pico-spacing);
+    bottom: var(--pico-spacing);
     width: var(--dark-mode-button-width);
     height: var(--dark-mode-button-height);
     margin-bottom: 0;
     line-height: 0;
     padding: 0.5rem;
     border-radius: 100%;
-    box-shadow: var(--card-box-shadow);
+    box-shadow: var(--pico-card-box-shadow);
 }
 
 .theme-switcher::after {
@@ -161,7 +162,7 @@ html[data-theme="dark"] .theme-switcher::after {
 @media screen and (max-width: 768px) {
     body {
         /* Prevent the dark mode toggle from potentially obscurring content */
-        margin-bottom: calc(var(--dark-mode-button-height) + var(--spacing) + 1rem);
+        margin-bottom: calc(var(--dark-mode-button-height) + var(--pico-spacing) + 1rem);
     }
 
     .grid {
