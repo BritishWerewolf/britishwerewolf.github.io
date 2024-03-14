@@ -8,6 +8,8 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.pumpkin.min.css">
     <link rel="stylesheet" href="css/stylesheet.css">
+
+    <script src="scripts/darkmode.js" defer></script>
 </head>
 <body>
     <section class="hero">
@@ -16,6 +18,23 @@
             <h2>My name is Harry, and this is my portfolio and thought pieces. Enjoy!</h2>
         </hgroup>
     </section>
+
+    <h2>Articles</h2>
+    <article>
+        <header>
+            <b>Why Pico CSS might be my favourite framework</b>
+            <small>Published on 2024-02-19</small>
+        </header>
+        <div>
+            <p>This week the Pico team released version 2 of their lightweight, (almost) classless CSS framework.</p>
+            <b>What is Pico CSS?</b>
+            <p>In a world of pre built components, or utility class frameworks, Pico was a breath of fresh air.</p>
+            <p>Pico has just a handful of classes (unless you opt for the classless version!), but is built on the premise that you write semantic HTML and the rest is handled for you.</p>
+        </div>
+        <footer>
+            <a href="blogs/2024-02-19-pico-v2-release.html">Read article</a>
+        </footer>
+    </article>
 
     <h2>My projects</h2>
     <div class="grid">
@@ -66,18 +85,5 @@
     </div>
 
     <button class="contrast theme-switcher" aria-label="Turn off dark mode"><i>Turn off dark mode</i></button>
-
-    <script>
-    document.getElementsByClassName("theme-switcher")[0].onclick = function (event) {
-        document.documentElement.dataset["theme"] = document.documentElement.dataset["theme"] == "dark"
-        ? "light"
-        : "dark";
-        localStorage.setItem("theme", document.documentElement.dataset["theme"]);
-    };
-
-    if (localStorage.getItem("theme")) {
-        document.documentElement.dataset["theme"] = localStorage.getItem("theme");
-    }
-    </script>
 </body>
 </html>
