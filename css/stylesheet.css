@@ -48,6 +48,7 @@ h1, h2, h3, h4, h5, h6 {
 
 header a, header b, header i, footer a, footer b, footer i {
     display: block;
+    padding: 0.5rem;
 }
 
 .grid {
