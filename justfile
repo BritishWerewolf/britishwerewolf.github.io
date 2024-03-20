@@ -2,6 +2,10 @@
 default:
     just --list
 
+#-------------------------------------------------------------------------------
+# CSS
+#
+
 # Purge unused CSS, and minify result.
 build-css: purge-css minify-css
 
@@ -22,3 +26,15 @@ purge-css:
 minify-css:
     npx clean-css-cli -O2 specialComments:none css/pico.pumpkin.min.css -o css/pico.pumpkin.min.css
     npx clean-css-cli -O2 specialComments:none css/stylesheet.min.css -o css/stylesheet.min.css
+
+#-------------------------------------------------------------------------------
+# Blogs
+#
+
+# Create an empty Markdown file.
+create-blog slug:
+    echo -e ":meta\ndescription = SEO description\npublish_date = $(date '+%Y-%m-%d')\n:meta\n# Blog Title\nWrite something awesome!" > "blogs/markdowns/$(date '+%Y-%m-%d')-{{ slug }}.md"
+
+# Generate an HTML from markdown.
+generate-blog slug:
+    blogs-md-easy -t blogs/markdowns/template.html -m blogs/markdowns/{{ slug }}.md
