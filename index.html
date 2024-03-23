@@ -21,24 +21,57 @@
     </section>
 
     <h2>Articles</h2>
-    <article>
-        <header>
-            <b>Why Pico CSS might be my favourite framework</b>
-            <small>Published on 2024-02-19</small>
-        </header>
-        <div>
-            <p>This week the Pico team released version 2 of their lightweight, (almost) classless CSS framework.</p>
-            <b>What is Pico CSS?</b>
-            <p>In a world of pre built components, or utility class frameworks, Pico was a breath of fresh air.</p>
-            <p>Pico has just a handful of classes (unless you opt for the classless version!), but is built on the premise that you write semantic HTML and the rest is handled for you.</p>
-        </div>
-        <footer>
-            <a href="blogs/2024-02-19-pico-v2-release.html">Read article</a>
-        </footer>
-    </article>
+    <section class="grid">
+        <article>
+            <header>
+                <b>How I made a CLI tool in Rust for my blog</b>
+                <small>Published on 2024-03-22</small>
+            </header>
+            <div>
+                <p>Today I released <a href="https://crates.io/crates/blogs-md-easy">blogs-md-easy</a>.<br>A simple CLI that takes your Markdown files, and populates a predefined HTML template with the content.</p>
+                <p>If I use the same template every time, it might seem easier to just copy and paste that template and edit the content.</p>
+                <p>Perhaps.</p>
+                <p>It's much easier to write in a simple text format, and then copy that into HTML when I come to publish.</p>
+            </div>
+            <footer>
+                <a href="blogs/2024-03-22-how-i-made-a-cli-in-rust.html">Read article</a>
+            </footer>
+        </article>
+
+        <article>
+            <header>
+                <b>Why Pico CSS might be my favourite framework</b>
+                <small>Published on 2024-02-19</small>
+            </header>
+            <div>
+                <p>This week the Pico team released version 2 of their lightweight, (almost) classless CSS framework.</p>
+                <b>What is Pico CSS?</b>
+                <p>In a world of pre built components, or utility class frameworks, Pico was a breath of fresh air.</p>
+                <p>Pico has just a handful of classes (unless you opt for the classless version!), but is built on the premise that you write semantic HTML and the rest is handled for you.</p>
+            </div>
+            <footer>
+                <a href="blogs/2024-02-19-pico-v2-release.html">Read article</a>
+            </footer>
+        </article>
+    </section>
 
     <h2>My projects</h2>
-    <div class="grid">
+    <section class="grid">
+        <article>
+            <header>
+                <b>Blogs Made Easy</b>
+                <i>blogs-md-easy</i>
+            </header>
+            <div>
+                <p>I built this tool especially for this site. Instead of manually copying an old blog and editing it, this allows me to write Markdown and convert it to HTML.</p>
+                <p>I'm proud of this one! It's my first ever published package!</p>
+            </div>
+            <footer>
+                <a href="https://crates.io/crates/blogs-md-easy">Crates.io</a>
+                <a href="https://github.com/BritishWerewolf/blogs-md-easy">GitHub repo</a>
+            </footer>
+        </article>
+
         <article>
             <header>
                 <b>Rust Yew Counter</b>
@@ -83,7 +116,7 @@
                 <a href="https://github.com/BritishWerewolf/BootstrapAlerts">GitHub repo</a>
             </footer>
         </article>
-    </div>
+    </section>
 
     <button class="contrast theme-switcher" aria-label="Turn off dark mode"><i>Turn off dark mode</i></button>
 </body>
