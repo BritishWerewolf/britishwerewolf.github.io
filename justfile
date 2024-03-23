@@ -35,6 +35,10 @@ minify-css:
 create-blog slug:
     echo -e ":meta\ndescription = SEO description\npublish_date = $(date '+%Y-%m-%d')\n:meta\n# Blog Title\nWrite something awesome!" > "blogs/markdowns/$(date '+%Y-%m-%d')-{{ slug }}.md"
 
-# Generate an HTML from markdown.
+# Generate an HTML from Markdown.
 generate-blog slug:
-    blogs-md-easy -t blogs/markdowns/template.html -m blogs/markdowns/{{ slug }}.md
+    blogs-md-easy -t blogs/markdowns/template.html -m blogs/markdowns/{{ slug }}.md -o blogs
+
+# Run the generate script for all Markdowns.
+regenerate-blogs:
+    blogs-md-easy -t blogs/markdowns/template.html -m blogs/markdowns/*.md -o blogs
