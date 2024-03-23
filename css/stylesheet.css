@@ -82,6 +82,7 @@ section.hero > hgroup {
 }
 
 section.hero > hgroup h1 {
+    padding-bottom: 0.5rem;
     font-size: 3rem;
     font-weight: 800;
     line-height: 1;
