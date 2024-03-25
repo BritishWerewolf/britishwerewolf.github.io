@@ -31,55 +31,126 @@ With a huge shout out to the [nom_crate](https://crates.io/crates/nom) for such 
 
 I started by thinking of the best way to provide additional data to the template. This is so that I can include variables in a template and have them replaced differently for each Markdown.
 
+### Meta section
 Enter: the meta section. I really didn't know what to call this section, but I guess this makes sense, maybe? Here I knew I needed to create a start and end tag, then some key-value storage within.
 
-This parser is actually two parsers together. We have one that parsers the key-value pairs, and another that parsers a delimited section of code.
+There are a few parsers at play here: one to parse keys, another for values, another for key-value pairs (combining the previous two!), another to parse comments, and finally another to parse the entire meta section (combining a bit of everything prior).
 
-Below is the parser that parsers the key-values pairs.  
-This utilises a few nom parsers to achieve it's goal. The first of which removes all whitespace at the start of the line, before looking for an optional `£`.  
-I used to write a lot of PHP back in the day, so this is just a homage to those days - with the obligatory twist because, you know, I'm the _British_ Werewolf...!
+#### Comments
+Let's start with the easiest one: parsing comments (and a bonus parser too!).
 
 ```rust
-fn parse_meta_values(input: Span) -> IResult<Span, Meta> {
-    // There might be an optional `£` at the start.
-    let (input, _) = tuple((multispace0, opt(tag("£"))))(input)?;
-
-    // Variable pattern.
-    let (input, key) = recognize(tuple((
-        alpha1,
-        opt(many0(alt((alphanumeric1, tag("_")))))
-    )))(input)?;
-
-    let (input, _) = tuple((multispace0, tag("="), multispace0))(input)?;
-
-    // The value of the variable, everything after the equals sign.
-    // Continue to a newline or the end of the string.
-    let (input, value) = alt((take_until("\n"), rest))(input)?;
-
-    Ok((input, Meta { key: key.trim().to_string(), value: value.trim().to_string() }))
+fn parse_until_eol(input: Span) -> IResult<Span, Span> {
+    terminated(
+        // Return any character until a newline.
+        alt((take_until("\n"), rest)),
+        // Consume, but don't return, the newline.
+        alt((tag("\n"), tag(""))),
+    )(input)
 }
-```
 
-The pattern for a variable is any letter from `A` to `Z`, followed by either an alphanumeric (`A` to `Z` and `0` to `9`), or underscore character.  
-This pattern was chosen arbitrarily, but really just because I was practicing nom and wanted to test my skills. It may well change in future; I'm undecided.
-
-One thing on my todo list is multi line arguments, that'll be a fun thing to introduce!
-
-Our section to parse the entire meta section simply looks for a start and end tag, then parsers a Vec of key-value pairs.
-
-```rust
-pub fn parse_meta_section(input: Span) -> IResult<Span, Vec<Meta>> {
-    delimited(
-        // Here we accept either a :meta or <meta>
-        tuple((multispace0, alt((tag(":meta"), tag("<meta>"))))),
-        // Now parse at least one set of key-value pairs.
-        // This will get stored within a Vec<Meta> - handy!
-        many1(parse_meta_values),
-        // Finally, look for our closing tags.
-        tuple((multispace0, alt((tag(":meta"), tag("</meta>"))))),
+fn parse_meta_comment(input: Span) -> IResult<Span, Span> {
+    preceded(
+        // All comments start with either a `#` or `//` followed by a space(s).
+        tuple((alt((tag("#"), tag("//"))), space0)),
+        // Then return the rest of that line.
+        parse_until_eol,
     )(input)
 }
 ```
+Comments can start with either `#` or `//`, and the rest of the comment will be simply the rest of the line. If you're wondering why I chose these two tags, it's simply because I come from a PHP background and where [the comments there](https://www.php.net/manual/en/language.basic-syntax.comments.php) have the same syntax.
+
+#### Keys and values
+Our next parser is actually three parsers working together. Let's look at parsing keys, values and the key-value pairs.
+```rust
+fn parse_variable_name(input: Span) -> IResult<Span, Span> {
+    // Recognise will convert the tuple into a str / Span.
+    recognize(tuple((
+        // Check that the first character is alphabetic.
+        take_while_m_n(1, 1, is_alphabetic),
+        // Then accept any alphanumeric characters, hyphens and underscores.
+        many0(alt((alphanumeric1, tag("-"), tag("_")))),
+    )))(input)
+}
+
+fn parse_meta_key(input: Span) -> IResult<Span, Span> {
+    preceded(
+        opt(tag("£")),
+        parse_variable_name
+    )(input)
+}
+
+fn parse_meta_value(input: Span) -> IResult<Span, Span> {
+    // The value of the variable, everything after the equals sign.
+    // Continue to a newline or the end of the string.
+    parse_until_eol(input)
+}
+
+// Putting it all together!
+fn parse_meta_key_value(input: Span) -> IResult<Span, Meta> {
+    // Separate our two parses by an equal, with optional spaces eiter side.
+    separated_pair(
+        parse_meta_key,
+        recognize(tuple((space0, tag("="), space0))),
+        parse_meta_value
+    )(input)
+    // Make use of nom::Parser to `map` the output into our predefined struct.
+    // This is instead of storing in a variable and mapping ourselves.
+    .map(|(input, (key, value))| {
+        (input, Meta {
+            key: key.trim().to_string(),
+            value: value.trim().to_string()
+        })
+    })
+}
+```
+In the meta section, we can optionally use a `£` before a variable. The meta value is _anything_ until the end of the line.
+
+We put this all together into a single parser, which returns a `Meta` struct.  
+This is done by using the `key` and `value` parsers, and checking that there is a `=` in between them. If we match here, then we will move onto the `map` function. I find it handy to write my parsers this way, rather than creating variables and using the `?` operator and then building a struct.  
+This feels more idiomatic and makes the flow a bit easier to read in my opinion.
+
+As mentioned above, I wanted to continue my homage to PHP by prefixing variables with a symbol; I chose the `£` because it's similar to PHP's dollar symbol, but with that classic twist, because, you know, I'm the _British_ Werewolf...!
+
+The pattern for variable names was chosen (somewhat) arbitrarily, but really just because I was practicing nom and wanted to test my skills. It may well change in future; I'm undecided.  
+I say "somewhat" because it was inspired by HTML IDs that must start with a letter first.
+
+One thing on my todo list is multi line arguments, that'll be a fun thing to introduce!
+
+#### Piecing it all together
+
+Our section to parse the entire meta section simply looks for a start and end tag, then a parser to parse a line.
+
+```rust
+fn parse_meta_line(input: Span) -> IResult<Span, Option<Meta>> {
+    // A line can have whitespace before it, but we don't want to store this.
+    let (input, _) = space0(input)?;
+    // Then a line can be either a comment or a key-value pair.
+    let (input, res) = alt((
+        // Discard comments.
+        parse_meta_comment.map(|_| None),
+        // Keep key-value pairs.
+        parse_meta_key_value.map(Some),
+    ))(input)?;
+    // Finally remove trailing whitespace and newlines.
+    let (input, _) = multispace0(input)?;
+    Ok((input, res))
+}
+
+pub fn parse_meta_section(input: Span) -> IResult<Span, Vec<Option<Meta>>> {
+    delimited(
+        // Here we accept either a :meta or <meta>.
+        tuple((multispace0, alt((tag(":meta"), tag("<meta>"))), multispace0)),
+        // Now parse at least one set of key-value pairs.
+        // This will get stored within a Vec<Meta> - handy!
+        many1(parse_meta_line),
+        // Finally, look for our closing tags.
+        tuple((multispace0, alt((tag(":meta"), tag("</meta>"))), multispace0)),
+    )(input)
+}
+```
+Something I learnt here was just simply passing `Some` or `|_| None` to the map function, rather than passing a full closure.  
+This is because the `alt` parser will discard any `None` values, so doing this means our Vector will only contain the key-value pairs.
 
 Simple. What's next?!
 

@@ -41,44 +41,113 @@
             <p>Courtesy of <a href="https://adventofcode.com">Advent of Code</a>, I spent a lot of time learning how to write parsers in Rust.</p>
             <p>With a huge shout out to the <a href="https://crates.io/crates/nom">nom_crate</a> for such a fantastic library, and <a href="https://youtube.com/@chrisbiscardi">Chris Biscardi</a> for the fantastic tutorials and walkthroughs using this crate.</p>
             <p>I started by thinking of the best way to provide additional data to the template. This is so that I can include variables in a template and have them replaced differently for each Markdown.</p>
+
+            <h3>Meta section</h3>
             <p>Enter: the meta section. I really didn't know what to call this section, but I guess this makes sense, maybe? Here I knew I needed to create a start and end tag, then some key-value storage within.</p>
-            <p>This parser is actually two parsers together. We have one that parsers the key-value pairs, and another that parsers a delimited section of code.</p>
-            <p>Below is the parser that parsers the key-values pairs.<br />
-            This utilises a few nom parsers to achieve it's goal. The first of which removes all whitespace at the start of the line, before looking for an optional <code>£</code>.<br />
-            I used to write a lot of PHP back in the day, so this is just a homage to those days - with the obligatory twist because, you know, I'm the <em>British</em> Werewolf...!</p>
-<pre><code class="language-rust">fn parse_meta_values(input: Span) -&gt; IResult&lt;Span, Meta&gt; {
-    // There might be an optional `£` at the start.
-    let (input, _) = tuple((multispace0, opt(tag(&quot;£&quot;))))(input)?;
+            <p>There are a few parsers at play here: one to parse keys, another for values, another for key-value pairs (combining the previous two!), another to parse comments, and finally another to parse the entire meta section (combining a bit of everything prior).</p>
 
-    // Variable pattern.
-    let (input, key) = recognize(tuple((
-        alpha1,
-        opt(many0(alt((alphanumeric1, tag(&quot;_&quot;)))))
-    )))(input)?;
+            <h4>Comments</h4>
+            <p>Let's start with the easiest one: parsing comments (and a bonus parser too!).</p>
+<pre><code class="language-rust">fn parse_until_eol(input: Span) -&gt; IResult&lt;Span, Span&gt; {
+    terminated(
+        // Return any character until a newline.
+        alt((take_until(&quot;\n&quot;), rest)),
+        // Consume, but don't return, the newline.
+        alt((tag(&quot;\n&quot;), tag(&quot;&quot;))),
+    )(input)
+}
 
-    let (input, _) = tuple((multispace0, tag(&quot;=&quot;), multispace0))(input)?;
-
-    // The value of the variable, everything after the equals sign.
-    // Continue to a newline or the end of the string.
-    let (input, value) = alt((take_until(&quot;\n&quot;), rest))(input)?;
-
-    Ok((input, Meta { key: key.trim().to_string(), value: value.trim().to_string() }))
-}</code></pre>
-            <p>The pattern for a variable is any letter from <code>A</code> to <code>Z</code>, followed by either an alphanumeric (<code>A</code> to <code>Z</code> and <code>0</code> to <code>9</code>), or underscore character.<br />
-            This pattern was chosen arbitrarily, but really just because I was practicing nom and wanted to test my skills. It may well change in future; I'm undecided.</p>
-            <p>One thing on my todo list is multi line arguments, that'll be a fun thing to introduce!</p>
-            <p>Our section to parse the entire meta section simply looks for a start and end tag, then parsers a Vec of key-value pairs.</p>
-<pre><code class="language-rust">pub fn parse_meta_section(input: Span) -&gt; IResult&lt;Span, Vec&lt;Meta&gt;&gt; {
-    delimited(
-        // Here we accept either a :meta or &lt;meta&gt;
-        tuple((multispace0, alt((tag(&quot;:meta&quot;), tag(&quot;&lt;meta&gt;&quot;))))),
-        // Now parse at least one set of key-value pairs.
-        // This will get stored within a Vec&lt;Meta&gt; - handy!
-        many1(parse_meta_values),
-        // Finally, look for our closing tags.
-        tuple((multispace0, alt((tag(&quot;:meta&quot;), tag(&quot;&lt;/meta&gt;&quot;))))),
+fn parse_meta_comment(input: Span) -&gt; IResult&lt;Span, Span&gt; {
+    preceded(
+        // All comments start with either a `#` or `//` followed by a space(s).
+        tuple((alt((tag(&quot;#&quot;), tag(&quot;//&quot;))), space0)),
+        // Then return the rest of that line.
+        parse_until_eol,
     )(input)
 }</code></pre>
+            <p>Comments can start with either <code>#</code> or <code>//</code>, and the rest of the comment will be simply the rest of the line. If you're wondering why I chose these two tags, it's simply because I come from a PHP background and where <a href="https://www.php.net/manual/en/language.basic-syntax.comments.php">the comments there</a> have the same syntax.</p>
+
+            <h4>Keys and values</h4>
+            <p>Our next parser is actually three parsers working together. Let's look at parsing keys, values and the key-value pairs.</p>
+<pre><code class="language-rust">fn parse_variable_name(input: Span) -&gt; IResult&lt;Span, Span&gt; {
+    // Recognise will convert the tuple into a str / Span.
+    recognize(tuple((
+        // Check that the first character is alphabetic.
+        take_while_m_n(1, 1, is_alphabetic),
+        // Then accept any alphanumeric characters, hyphens and underscores.
+        many0(alt((alphanumeric1, tag(&quot;-&quot;), tag(&quot;_&quot;)))),
+    )))(input)
+}
+
+fn parse_meta_key(input: Span) -&gt; IResult&lt;Span, Span&gt; {
+    preceded(
+        opt(tag(&quot;£&quot;)),
+        parse_variable_name
+    )(input)
+}
+
+fn parse_meta_value(input: Span) -&gt; IResult&lt;Span, Span&gt; {
+    // The value of the variable, everything after the equals sign.
+    // Continue to a newline or the end of the string.
+    parse_until_eol(input)
+}
+
+// Putting it all together!
+fn parse_meta_key_value(input: Span) -&gt; IResult&lt;Span, Meta&gt; {
+    // Separate our two parses by an equal, with optional spaces eiter side.
+    separated_pair(
+        parse_meta_key,
+        recognize(tuple((space0, tag(&quot;=&quot;), space0))),
+        parse_meta_value
+    )(input)
+    // Make use of nom::Parser to `map` the output into our predefined struct.
+    // This is instead of storing in a variable and mapping ourselves.
+    .map(|(input, (key, value))| {
+        (input, Meta {
+            key: key.trim().to_string(),
+            value: value.trim().to_string()
+        })
+    })
+}</code></pre>
+            <p>In the meta section, we can optionally use a <code>£</code> before a variable. The meta value is <em>anything</em> until the end of the line.</p>
+            <p>We put this all together into a single parser, which returns a <code>Meta</code> struct.<br />
+            This is done by using the <code>key</code> and <code>value</code> parsers, and checking that there is a <code>=</code> in between them. If we match here, then we will move onto the <code>map</code> function. I find it handy to write my parsers this way, rather than creating variables and using the <code>?</code> operator and then building a struct.<br />
+            This feels more idiomatic and makes the flow a bit easier to read in my opinion.</p>
+            <p>As mentioned above, I wanted to continue my homage to PHP by prefixing variables with a symbol; I chose the <code>£</code> because it's similar to PHP's dollar symbol, but with that classic twist, because, you know, I'm the <em>British</em> Werewolf...!</p>
+            <p>The pattern for variable names was chosen (somewhat) arbitrarily, but really just because I was practicing nom and wanted to test my skills. It may well change in future; I'm undecided.<br />
+            I say &quot;somewhat&quot; because it was inspired by HTML IDs that must start with a letter first.</p>
+            <p>One thing on my todo list is multi line arguments, that'll be a fun thing to introduce!</p>
+
+            <h4>Piecing it all together</h4>
+            <p>Our section to parse the entire meta section simply looks for a start and end tag, then a parser to parse a line.</p>
+<pre><code class="language-rust">fn parse_meta_line(input: Span) -&gt; IResult&lt;Span, Option&lt;Meta&gt;&gt; {
+    // A line can have whitespace before it, but we don't want to store this.
+    let (input, _) = space0(input)?;
+    // Then a line can be either a comment or a key-value pair.
+    let (input, res) = alt((
+        // Discard comments.
+        parse_meta_comment.map(|_| None),
+        // Keep key-value pairs.
+        parse_meta_key_value.map(Some),
+    ))(input)?;
+    // Finally remove trailing whitespace and newlines.
+    let (input, _) = multispace0(input)?;
+    Ok((input, res))
+}
+
+pub fn parse_meta_section(input: Span) -&gt; IResult&lt;Span, Vec&lt;Option&lt;Meta&gt;&gt;&gt; {
+    delimited(
+        // Here we accept either a :meta or &lt;meta&gt;.
+        tuple((multispace0, alt((tag(&quot;:meta&quot;), tag(&quot;&lt;meta&gt;&quot;))), multispace0)),
+        // Now parse at least one set of key-value pairs.
+        // This will get stored within a Vec&lt;Meta&gt; - handy!
+        many1(parse_meta_line),
+        // Finally, look for our closing tags.
+        tuple((multispace0, alt((tag(&quot;:meta&quot;), tag(&quot;&lt;/meta&gt;&quot;))), multispace0)),
+    )(input)
+}</code></pre>
+            <p>Something I learnt here was just simply passing <code>Some</code> or <code>|_| None</code> to the map function, rather than passing a full closure.<br />
+            This is because the <code>alt</code> parser will discard any <code>None</code> values, so doing this means our Vector will only contain the key-value pairs.</p>
             <p>Simple. What's next?!</p>
 
             <h2>Parsing placeholders</h2>
