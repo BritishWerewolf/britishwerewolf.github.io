@@ -33,6 +33,7 @@ minify-css:
 
 # Create an empty Markdown file.
 create-blog slug:
+    mkdir -p blogs/markdowns
     echo -e ":meta\ndescription = SEO description\npublish_date = $(date '+%Y-%m-%d')\n:meta\n# Blog Title\nWrite something awesome!" > "blogs/markdowns/$(date '+%Y-%m-%d')-{{ slug }}.md"
 
 # Generate an HTML from Markdown.
